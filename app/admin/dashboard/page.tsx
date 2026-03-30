@@ -1,128 +1,121 @@
+// app/admin/dashboard/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
-import { useRouter } from "next/navigation";
+import { Product } from "../../../lib/types"; 
+import Link from 'next/link';
 
-export default function Dashboard() {
-  const router = useRouter();
-  
-  // Estados para nuestro formulario
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Anillos");
-  const [imageUrl, setImageUrl] = useState("");
-  
-  const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
-  const [guardando, setGuardando] = useState(false);
+export default function InventarioPage() {
+  const [joyas, setJoyas] = useState<Product[]>([]); // El useState<Product[]>([]) le dice a react que va a guardar especificamente un arreglo del tipo Product
+  const [cargando, setCargando] = useState(true);
 
-  // Función para cerrar sesión
-  const cerrarSesion = async () => {
-    await supabase.auth.signOut();
-    router.push("/admin");
+  // 1. Traemos las joyas al cargar la página
+  useEffect(() => {
+    obtenerJoyas();
+  }, []);
+
+  const obtenerJoyas = async () => {
+    setCargando(true);
+    // Pedimos las joyas y las ordenamos por nombre alfabéticamente
+    const { data, error } = await supabase
+      .from("joyas")
+      .select("*")
+      .order("name", { ascending: true });
+      
+    if (data) setJoyas(data);
+    setCargando(false);
   };
 
-  // Función para guardar la joya en Supabase
-  const agregarJoya = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setGuardando(true);
-    setMensaje({ texto: "", tipo: "" });
+  // 2. Función para borrar una joya
+  const eliminarJoya = async (id: string) => {
+    // Alerta de confirmación nativa del navegador
+    const confirmar = window.confirm("¿Estás súper seguro de que deseas eliminar esta pieza? Esta acción no se puede deshacer.");
+    if (!confirmar) return;
 
-    // Insertamos los datos en la tabla 'joyas'
-    const { error } = await supabase.from("joyas").insert([
-      {
-        name: name,
-        description: description,
-        price: parseFloat(price), // Convertimos el texto a número
-        category: category,
-        image_url: imageUrl || "https://placehold.co/800x800/f8fafc/334155?text=Sin+Foto",
-      },
-    ]);
-
+    // Le decimos a Supabase que la borre
+    const { error } = await supabase.from("joyas").delete().eq("id", id);
+    
     if (error) {
-      setMensaje({ texto: "Hubo un error al guardar la joya.", tipo: "error" });
+      alert("Hubo un error al eliminar la joya.");
+      console.error(error);
     } else {
-      setMensaje({ texto: "¡Joya agregada al catálogo con éxito!", tipo: "exito" });
-      // Limpiamos el formulario
-      setName("");
-      setDescription("");
-      setPrice("");
-      setCategory("Anillos");
-      setImageUrl("");
+      // Truco pro: Filtramos la lista local para quitar la joya borrada 
+      // y así no tenemos que recargar toda la página de nuevo
+      setJoyas(joyas.filter((joya) => joya.id !== id));
     }
-    setGuardando(false);
   };
+
+  if (cargando) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-3xl mx-auto">
-        
-        {/* Barra superior */}
-        <div className="flex justify-between items-center mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Panel de Inventario</h1>
-            <p className="text-gray-500 text-sm">Agrega nuevas piezas al catálogo</p>
-          </div>
-          <button 
-            onClick={cerrarSesion}
-            className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Inventario Actual</h1>
+      
+      {/* Contenedor de la tabla */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            
+            {/* Encabezados */}
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
+                <th className="p-4 font-semibold">Imagen</th>
+                <th className="p-4 font-semibold">Nombre</th>
+                <th className="p-4 font-semibold">Categoría</th>
+                <th className="p-4 font-semibold">Precio (MXN)</th>
+                <th className="p-4 font-semibold text-center">Acciones</th>
+              </tr>
+            </thead>
+            
+            {/* Cuerpo de la tabla */}
+            <tbody className="divide-y divide-gray-100 table-row-group">
+              {joyas.map((joya) => (
+                <tr key={joya.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4">
+                    <img src={joya.image_url} alt={joya.name} className="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                  </td>
+                  <td className="p-4 font-medium text-gray-900">{joya.name}</td>
+                  <td className="p-4 text-sm text-gray-500">
+                    <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md">{joya.category}</span>
+                  </td>
+                  <td className="p-4 text-gray-900 font-semibold">${joya.price}</td>
+                  <td className="p-4 text-center flex justify-center gap-2">
+                    {/* NUEVO BOTÓN DE EDITAR */}
+                    <Link href={`/admin/dashboard/editar/${joya.id}`}>
+                      <button className="text-blue-500 hover:text-white hover:bg-blue-500 px-3 py-1 rounded-md font-medium text-sm transition-colors border border-blue-500 hover:border-transparent">
+                        Editar
+                      </button>
+                    </Link>
+                    
+                    <button 
+                      onClick={() => eliminarJoya(joya.id)}
+                      className="text-red-500 hover:text-white hover:bg-red-500 px-3 py-1 rounded-md font-medium text-sm transition-colors border border-red-500 hover:border-transparent"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
 
-        {/* Formulario */}
-        <div className="bg-white p-8 rounded-2xl shadow-md border border-gray-100">
-          
-          {mensaje.texto && (
-            <div className={`p-4 rounded-lg mb-6 text-sm font-medium ${mensaje.tipo === "exito" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-              {mensaje.texto}
+          </table>
+
+          {/* Mensaje si no hay nada en la BD */}
+          {joyas.length === 0 && (
+            <div className="p-10 text-center text-gray-500">
+              No hay joyas en el inventario. ¡Ve a la pestaña de "Agregar Joya" para empezar!
             </div>
           )}
 
-          <form onSubmit={agregarJoya} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la pieza</label>
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none text-gray-900 bg-white placeholder-gray-400" placeholder="Ej. Anillo de Diamante" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Precio (MXN)</label>
-                <input type="number" required min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none text-gray-900 bg-white placeholder-gray-400" placeholder="0.00" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none text-gray-900 bg-white">
-                  <option value="Anillos">Anillos</option>
-                  <option value="Collares">Collares</option>
-                  <option value="Pulseras">Pulseras</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea rows={3} required value={description} onChange={(e) => setDescription(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none resize-none text-gray-900 bg-white placeholder-gray-400" placeholder="Detalles sobre el material, kilataje, etc." />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL de la Imagen</label>
-                <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-black outline-none text-gray-900 bg-white placeholder-gray-400" placeholder="https://ejemplo.com/foto.jpg" />
-                <p className="text-xs text-gray-500 mt-1">*Por ahora usaremos enlaces de imágenes. Luego implementaremos la subida de archivos.</p>
-              </div>
-
-            </div>
-
-            <button type="submit" disabled={guardando} className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-800 transition-colors mt-4 disabled:bg-gray-400">
-              {guardando ? "Guardando..." : "Agregar al Catálogo"}
-            </button>
-          </form>
-
         </div>
       </div>
-    </main>
+    </div>
   );
 }
