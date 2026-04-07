@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from 'next/link';
+import Footer from "@/components/Footer";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,13 +25,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
+
   return (
     <html lang="es">
-      {/* Mantenemos tu configuración original de fuentes en el body */}
-      <body className="antialiased bg-white text-gray-900">
+      {/* 2. Le agregamos 'flex flex-col min-h-screen' al body para la estructura */}
+      <body className="antialiased bg-white text-gray-900 flex flex-col min-h-screen">
         
-        {/* Tu nuevo Navbar Global */}
+        {/* Navbar Global */}
         <nav className="bg-white border-b border-gray-100 py-4 px-8 sticky top-0 z-50">
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <Link href="/" className="text-2xl font-extrabold tracking-widest text-black uppercase">
@@ -42,7 +44,13 @@ export default function RootLayout({
           </div>
         </nav>
 
-        {children}
+        {/* 3. Envolvemos el children en un main con 'flex-grow' para empujar el Footer hacia abajo */}
+        <main className="flex-grow">
+          {children}
+        </main>
+
+        {/* 4. Colocamos el Footer justo antes de cerrar el body */}
+        <Footer />
         
       </body>
     </html>
