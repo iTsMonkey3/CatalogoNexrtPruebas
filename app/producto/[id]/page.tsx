@@ -72,7 +72,7 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
           
           <div className="mt-auto">
             <span className="text-3xl font-bold text-gray-900 block mb-6">
-              ${product.price} MXN
+              ${product.price.toLocaleString('en-US')} MXN
             </span>
             
             <div className="space-y-3">

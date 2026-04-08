@@ -85,7 +85,7 @@ export default function InventarioPage() {
                   <td className="p-4 text-sm text-gray-500">
                     <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md">{joya.category}</span>
                   </td>
-                  <td className="p-4 text-gray-900 font-semibold">${joya.price}</td>
+                  <td className="p-4 text-gray-900 font-semibold">${joya.price.toLocaleString('en-US')}</td>
                   <td className="p-4 text-center flex justify-center gap-2">
                     {/* NUEVO BOTÓN DE EDITAR */}
                     <Link href={`/admin/dashboard/editar/${joya.id}`}>

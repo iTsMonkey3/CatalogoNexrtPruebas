@@ -10,7 +10,7 @@ export default function ProductCard({ product }: { product: Product}) {
         <h3 className="text-xl font-bold text-gray-800 mt-1">{product.name}</h3>
         <p className="text-gray-600 mt-2 text-sm line-clamp-2">{product.description}</p>
         <div className="mt-5 flex items-center justify-between">
-          <span className="text-lg font-bold text-gray-900">${product.price} MXN</span>
+          <span className="text-lg font-bold text-gray-900">${product.price.toLocaleString('en-US')} MXN</span>
           <Link href={`/producto/${product.id}`}>
             <button className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors">
                 Ver detalles
