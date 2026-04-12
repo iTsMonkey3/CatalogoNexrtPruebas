@@ -1,23 +1,24 @@
+// app/catalogo/page.tsx (o donde tengas tu componente Catalogo)
 "use client";
 
 import { useState, useEffect } from 'react';
-import ProductCard from '../../components/ProductCard';
+import ProductCard from '../../components/ProductCard'; // Ajusta la ruta si es necesario
 import { supabase } from '../../lib/supabase';
 import { Product } from '../../lib/types';
 
 export default function Catalogo() {
   const [productos, setProductos] = useState<Product[]>([]);
   const [cargando, setCargando] = useState(true);
-  const valorMaximo = 100000
+  const valorMaximo = 100000;
   
   // Estados para los Filtros
   const [categoriaActiva, setCategoriaActiva] = useState('Todas');
   const [busqueda, setBusqueda] = useState('');
   const [precioMaximo, setPrecioMaximo] = useState(valorMaximo);
 
-  // NUEVO 1: Estados para la Paginación
+  // Estados para la Paginación
   const [paginaActual, setPaginaActual] = useState(1);
-  const productosPorPagina = 20; // Aquí decides cuántos mostrar
+  const productosPorPagina = 12; // 12 es múltiplo de 1, 2, 3 y 4, ideal para grids responsivos
 
   const categorias = ['Todas', 'Anillos', 'Collares', 'Pulseras'];
 
@@ -34,12 +35,12 @@ export default function Catalogo() {
     obtenerJoyas();
   }, []);
 
-  // NUEVO 2: Si el usuario cambia CUALQUIER filtro, lo regresamos a la página 1
+  // Reset de página al filtrar
   useEffect(() => {
     setPaginaActual(1);
   }, [categoriaActiva, busqueda, precioMaximo]);
 
-  // Lógica de Filtrado (Se queda igualita)
+  // Lógica de Filtrado
   const joyasFiltradas = productos.filter((joya) => {
     const coincideCategoria = categoriaActiva === 'Todas' || joya.category === categoriaActiva;
     const textoBusqueda = busqueda.toLowerCase();
@@ -49,7 +50,7 @@ export default function Catalogo() {
     return coincideCategoria && coincideTexto && coincidePrecio;
   });
 
-  // NUEVO 3: Lógica de Paginación (Cortamos el arreglo filtrado)
+  // Lógica de Paginación
   const indiceUltimoItem = paginaActual * productosPorPagina;
   const indicePrimerItem = indiceUltimoItem - productosPorPagina;
   const joyasPaginadas = joyasFiltradas.slice(indicePrimerItem, indiceUltimoItem);
@@ -57,70 +58,79 @@ export default function Catalogo() {
   const totalPaginas = Math.ceil(joyasFiltradas.length / productosPorPagina);
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-[#0a0a0a] text-white py-16 px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
         
-        <header className="mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+        {/* ENCABEZADO */}
+        <header className="mb-16 text-center">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-6">
             Colección Exclusiva
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <div className="h-0.5 w-16 bg-white mx-auto mb-6"></div>
+          <p className="text-gray-400 font-light tracking-wide max-w-2xl mx-auto">
             Descubre nuestras piezas únicas y encuentra la ideal para ti.
           </p>
         </header>
 
-        {/* Barra de Herramientas (Filtros) */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        {/* BARRA DE FILTROS (Alto contraste y líneas limpias) */}
+        <div className="bg-[#111111] p-6 md:p-8 border border-[#1a1a1a] mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
             
-            <div className="col-span-1 md:col-span-2">
+            <div className="col-span-1 md:col-span-2 group">
+              <label className="block text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase mb-2 transition-colors duration-500 group-focus-within:text-white">
+                Buscar Pieza
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
                 <input
                   type="text"
-                  placeholder="Buscar por nombre, material o detalle..."
+                  placeholder="Ej. Anillo solitario, oro blanco..."
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black outline-none transition-all text-gray-900 bg-gray-50 focus:bg-white"
+                  // Quitamos los bordes completos y dejamos solo una fina línea inferior (border-b)
+                  // Aumentamos el tamaño de letra (text-lg) para que el texto se vea con más confianza
+                  className="w-full bg-transparent border-b border-[#333] text-lg text-white placeholder-[#444] py-3 pr-10 focus:border-white focus:outline-none transition-all duration-500 font-light"
                 />
+                {/* Movimos el ícono a la derecha y le dimos un efecto que se ilumina cuando escribes */}
+                <span className="absolute inset-y-0 right-0 flex items-center text-[#444] group-focus-within:text-white transition-colors duration-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                </span>
               </div>
             </div>
 
+            {/* Rango de Precio */}
             <div className="col-span-1">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex justify-between items-center">
-                <span>Precio máximo:</span>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-2 flex items-center text-gray-500 font-bold text-sm">$</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={precioMaximo}
-                    onChange={(e) => setPrecioMaximo(Number(e.target.value))}
-                    className="w-28 pl-6 pr-2 py-1 text-right font-bold text-black border border-gray-300 rounded-md focus:ring-2 focus:ring-black outline-none transition-all"
-                  />
-                </div>
+              <label className="flex justify-between items-center text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase mb-3">
+                <span>Precio Máximo</span>
+                <span className="text-white font-bold tracking-normal text-sm">
+                  ${precioMaximo.toLocaleString('en-US')} MXN
+                </span>
               </label>
-              <input
-                type="range"
-                min="0"
-                max={valorMaximo}
-                step="500"
-                value={precioMaximo}
-                onChange={(e) => setPrecioMaximo(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black mt-2"
-              />
+              <div className="relative pt-2">
+                <input
+                  type="range"
+                  min="0"
+                  max={valorMaximo}
+                  step="500"
+                  value={precioMaximo}
+                  onChange={(e) => setPrecioMaximo(Number(e.target.value))}
+                  className="w-full h-1 bg-[#2a2a2a] appearance-none cursor-pointer accent-white"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-100">
+          {/* Categorías */}
+          <div className="flex flex-wrap gap-4 mt-10 pt-8 border-t border-[#1a1a1a]">
             {categorias.map((categoria) => (
               <button
                 key={categoria}
                 onClick={() => setCategoriaActiva(categoria)}
-                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                className={`px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-medium transition-all duration-300 ${
                   categoriaActiva === categoria
-                    ? 'bg-black text-white shadow-md transform scale-105'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-black hover:text-black'
+                    ? 'bg-white text-black border border-white'
+                    : 'bg-transparent text-gray-400 border border-[#333] hover:border-white hover:text-white'
                 }`}
               >
                 {categoria}
@@ -129,65 +139,75 @@ export default function Catalogo() {
           </div>
         </div>
 
-        {/* Resultados */}
+        {/* RESULTADOS */}
         {cargando ? (
-          <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-            <p className="text-xl text-gray-600">Cargando la colección...</p>
+          // Loader minimalista
+          <div className="text-center py-32 flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-t-2 border-white border-solid rounded-full animate-spin mb-6"></div>
+            <p className="text-sm text-gray-500 uppercase tracking-[0.2em]">Preparando catálogo</p>
           </div>
         ) : (
           <>
-            <div className="mb-6 text-gray-500 font-medium flex justify-between items-center">
+            <div className="mb-8 text-[11px] text-gray-500 uppercase tracking-widest flex justify-between items-center border-b border-[#1a1a1a] pb-4">
               <span>
-                Mostrando {indicePrimerItem + 1} - {Math.min(indiceUltimoItem, joyasFiltradas.length)} de {joyasFiltradas.length} piezas
+                Mostrando {joyasFiltradas.length > 0 ? indicePrimerItem + 1 : 0} - {Math.min(indiceUltimoItem, joyasFiltradas.length)} de {joyasFiltradas.length} piezas
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* NUEVO 4: Iteramos sobre joyasPaginadas, no sobre todas */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
               {joyasPaginadas.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
-            {/* NUEVO 5: Controles de Paginación UI */}
-            {totalPaginas > 1 && (
-              <div className="mt-16 flex justify-center items-center gap-4">
-                <button
-                  onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
-                  disabled={paginaActual === 1}
-                  className="px-4 py-2 rounded-lg font-semibold text-sm transition-colors border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                >
-                  &larr; Anterior
-                </button>
-                
-                <span className="text-gray-600 font-medium">
-                  Página {paginaActual} de {totalPaginas}
-                </span>
-
-                <button
-                  onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
-                  disabled={paginaActual === totalPaginas}
-                  className="px-4 py-2 rounded-lg font-semibold text-sm transition-colors border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                >
-                  Siguiente &rarr;
-                </button>
-              </div>
-            )}
-
+            {/* ESTADO VACÍO (Si no hay coincidencias) */}
             {!cargando && joyasFiltradas.length === 0 && (
-              <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-                <p className="text-2xl mb-2">🥲</p>
-                <p className="text-xl text-gray-900 font-bold">No encontramos ninguna joya con esos filtros.</p>
+              <div className="text-center py-32 border border-[#1a1a1a] bg-[#111111]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-12 h-12 mx-auto text-gray-600 mb-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+                </svg>
+                <p className="text-lg text-white font-serif mb-2">No se encontraron piezas</p>
+                <p className="text-gray-500 text-sm font-light mb-8">Intenta ajustar los filtros de búsqueda.</p>
                 <button 
                   onClick={() => {
                     setBusqueda('');
                     setPrecioMaximo(valorMaximo);
                     setCategoriaActiva('Todas');
                   }}
-                  className="mt-6 text-indigo-600 font-semibold hover:text-indigo-800"
+                  className="px-8 py-3 bg-white text-black text-[10px] uppercase tracking-[0.2em] font-medium hover:bg-gray-200 transition-colors"
                 >
-                  Limpiar todos los filtros
+                  Limpiar Filtros
+                </button>
+              </div>
+            )}
+
+            {/* CONTROLES DE PAGINACIÓN */}
+            {totalPaginas > 1 && (
+              <div className="mt-20 flex justify-center items-center gap-6">
+                <button
+                  onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
+                  disabled={paginaActual === 1}
+                  className="w-10 h-10 flex items-center justify-center border border-[#333] text-white disabled:opacity-30 disabled:hover:bg-transparent hover:bg-white hover:text-black transition-all"
+                  aria-label="Anterior"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
+                </button>
+                
+                <span className="text-gray-400 text-[11px] uppercase tracking-[0.2em]">
+                  <span className="text-white">{paginaActual}</span> / {totalPaginas}
+                </span>
+
+                <button
+                  onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
+                  disabled={paginaActual === totalPaginas}
+                  className="w-10 h-10 flex items-center justify-center border border-[#333] text-white disabled:opacity-30 disabled:hover:bg-transparent hover:bg-white hover:text-black transition-all"
+                  aria-label="Siguiente"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
                 </button>
               </div>
             )}

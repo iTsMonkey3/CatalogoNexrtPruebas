@@ -67,7 +67,7 @@ export default function TopProducts() {
         {/* Carrusel */}
         <div 
           ref={carruselRef}
-          className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex items-start gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {populares.map((joya) => (
             // Tarjetas más chicas: w-[260px] en móvil y w-[320px] en desktop

@@ -23,7 +23,6 @@ export default function Navbar() {
     <nav className="bg-[#111111] border-b border-[#2a2a2a] py-4 md:py-5 px-4 md:px-8 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
-        {/* LOGO: Más pequeño en móvil (w:80), tamaño normal en desktop (md:w:120) */}
         <Link href="/" className="flex items-center z-50">
           <div className="w-[80px] md:w-[120px] relative h-[30px] md:h-[40px]">
             <Image 
@@ -31,6 +30,8 @@ export default function Navbar() {
               alt="DAFMI Joyería" 
               fill
               className="object-contain object-left" 
+              // Le decimos a Next.js exactamente qué tamaños esperar
+              sizes="(max-width: 768px) 80px, 120px" 
             /> 
           </div>
         </Link>
