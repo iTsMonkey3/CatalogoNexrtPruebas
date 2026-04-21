@@ -58,11 +58,10 @@ export default function Catalogo() {
   const totalPaginas = Math.ceil(joyasFiltradas.length / productosPorPagina);
 
   return (
-    // Agregamos 'relative' aquí para contener el contexto de z-index
-    <main className="min-h-screen bg-[#0a0a0a] text-white py-16 px-4 md:px-8 relative">
+    // Redujimos un poco el padding superior (py-16 a pb-16 pt-8) para que el banner quede más pegado al navbar
+    <main className="min-h-screen bg-[#0a0a0a] text-white pb-16 pt-6 px-4 md:px-8 relative">
       
-      {/* --- LOGO DE FONDO (MARCA DE AGUA) --- */}
-      {/* fixed: se queda centrado en la pantalla. pointer-events-none: no bloquea clics. opacity-[0.03]: opacidad del 3% */}
+      {/* LOGO DE FONDO (MARCA DE AGUA) */}
       <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none select-none opacity-[0.03] md:opacity-[0.05]">
         <img 
           src="/LogoSinFondo.png" 
@@ -71,19 +70,31 @@ export default function Catalogo() {
         />
       </div>
 
-      {/* --- CONTENEDOR PRINCIPAL --- */}
-      {/* relative z-10: asegura que todo el contenido esté por encima de la marca de agua */}
       <div className="max-w-7xl mx-auto relative z-10">
         
-        {/* ENCABEZADO */}
-        <header className="mb-16 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-6">
-            Colección Exclusiva
-          </h1>
-          <div className="h-0.5 w-16 bg-white mx-auto mb-6"></div>
-          <p className="text-gray-400 font-light tracking-wide max-w-2xl mx-auto">
-            Descubre nuestras piezas únicas y encuentra la ideal para ti.
-          </p>
+        {/* --- NUEVO ENCABEZADO TIPO BANNER --- */}
+        <header className="relative h-[35vh] min-h-[250px] mb-12 flex items-center justify-center overflow-hidden border border-[#1a1a1a]">
+          {/* Fondo y capa oscura */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 bg-black/60 z-10"></div> {/* Oscurece la foto un 60% */}
+            {/* Cambia el src por la imagen que vayas a usar, ej: "/Opc1.jpg" */}
+            <img 
+              src="/FondoCatalogo.png" 
+              alt="Colección DAFMI" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
+          {/* Textos sobre el banner */}
+          <div className="relative z-20 text-center px-6">
+            <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight mb-4">
+              Colección <span className="italic font-light text-gray-300">Exclusiva</span>
+            </h1>
+            <div className="h-0.5 w-16 bg-white mx-auto mb-6"></div>
+            <p className="text-gray-300 font-light tracking-wide max-w-2xl mx-auto text-sm md:text-base">
+              Descubre nuestras piezas únicas y encuentra la ideal para ti.
+            </p>
+          </div>
         </header>
 
         {/* BARRA DE FILTROS */}
