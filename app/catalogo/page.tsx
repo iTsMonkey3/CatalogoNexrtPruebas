@@ -35,6 +35,20 @@ export default function Catalogo() {
     obtenerJoyas();
   }, []);
 
+  // NUEVO: Leer la categoría desde la URL cuando el usuario entra a la página
+  useEffect(() => {
+    // Verificamos que estamos en el navegador
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoriaUrl = urlParams.get('categoria');
+      
+      // Si la URL trae una categoría y está dentro de nuestras opciones, la activamos
+      if (categoriaUrl && categorias.includes(categoriaUrl)) {
+        setCategoriaActiva(categoriaUrl);
+      }
+    }
+  }, []);
+
   // Reset de página al filtrar
   useEffect(() => {
     setPaginaActual(1);

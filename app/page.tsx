@@ -42,6 +42,78 @@ export default function Home() {
 
 
       {/* ============================================================ */}
+      {/* SECCIÓN CATEGORÍAS (Cuadrícula 2x2)                            */}
+      {/* ============================================================ */}
+      <section className="py-24 px-4 md:px-8 max-w-7xl mx-auto">
+        
+        <div className="text-center mb-16">
+          <span className="text-[10px] font-medium tracking-[0.3em] text-gray-500 uppercase mb-4 block">
+            Descubre tu estilo
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif mb-6 leading-tight">
+            Nuestras <span className="italic text-gray-300">Categorías</span>
+          </h2>
+          <div className="h-[1px] w-12 bg-[#333] mx-auto"></div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          
+          {/* CATEGORÍA 1: Anillos */}
+          <Link href="/catalogo?categoria=Anillos" className="group relative aspect-square md:aspect-[4/3] overflow-hidden bg-[#050505] border border-[#1a1a1a]">
+            {/* Recuerda cambiar el src por tu foto real */}
+            <img src="/Anillo.png" alt="Anillos" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+              <h3 className="text-3xl font-serif text-white mb-3 tracking-wide">Anillos</h3>
+              <span className="text-[10px] text-white uppercase tracking-[0.2em] border-b border-white/50 pb-1 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                Explorar Colección
+              </span>
+            </div>
+          </Link>
+
+          {/* CATEGORÍA 2: Collares */}
+          <Link href="/catalogo?categoria=Collares" className="group relative aspect-square md:aspect-[4/3] overflow-hidden bg-[#050505] border border-[#1a1a1a]">
+            <img src="/Collares.png" alt="Collares" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+              <h3 className="text-3xl font-serif text-white mb-3 tracking-wide">Collares</h3>
+              <span className="text-[10px] text-white uppercase tracking-[0.2em] border-b border-white/50 pb-1 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                Explorar Colección
+              </span>
+            </div>
+          </Link>
+
+          {/* CATEGORÍA 3: Pulseras */}
+          <Link href="/catalogo?categoria=Pulseras" className="group relative aspect-square md:aspect-[4/3] overflow-hidden bg-[#050505] border border-[#1a1a1a]">
+            <img src="/Pulseras.png" alt="Pulseras" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+              <h3 className="text-3xl font-serif text-white mb-3 tracking-wide">Pulseras</h3>
+              <span className="text-[10px] text-white uppercase tracking-[0.2em] border-b border-white/50 pb-1 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                Explorar Colección
+              </span>
+            </div>
+          </Link>
+
+          {/* CATEGORÍA 4: Dijes y Aretes */}
+          {/* Nota: En el link dice "Dijes", asegúrate de tener esa categoría en tu catálogo */}
+          <Link href="/catalogo?categoria=Dijes" className="group relative aspect-square md:aspect-[4/3] overflow-hidden bg-[#050505] border border-[#1a1a1a]">
+            <img src="/Varios.png" alt="Dijes y Aretes" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+              <h3 className="text-3xl font-serif text-white mb-3 tracking-wide">Dijes & Aretes</h3>
+              <span className="text-[10px] text-white uppercase tracking-[0.2em] border-b border-white/50 pb-1 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                Explorar Colección
+              </span>
+            </div>
+          </Link>
+
+        </div>
+      </section>
+
+
+
+      {/* ============================================================ */}
       {/* NUEVA SECCIÓN EDITORIAL: DATOS CURIOSOS Y EDUCACIÓN          */}
       {/* ============================================================ */}
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
