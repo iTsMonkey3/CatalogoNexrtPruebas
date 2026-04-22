@@ -3,7 +3,8 @@ import { supabase } from '../../../lib/supabase';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import BotonesProducto from '../../../components/BotonesProducto'; 
+import BotonesProducto from '../../../components/BotonesProducto';
+import ProductImageZoom from '@/components/ProductImageZoom';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -58,10 +59,9 @@ export default async function ProductDetails({ params }: { params: Promise<{ id:
           
           {/* LADO IZQUIERDO: Imagen Única Principal */}
           <div className="relative aspect-[4/5] md:aspect-auto md:h-[600px] w-full bg-[#050505] border border-[#1a1a1a] rounded-2xl p-2 flex items-center justify-center group overflow-hidden">
-            <img 
+            <ProductImageZoom 
               src={product.image_url || '/placeholder.jpg'} 
               alt={product.name} 
-              className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105"
             />
           </div>
 
