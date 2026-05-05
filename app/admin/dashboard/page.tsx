@@ -7,7 +7,7 @@ import { Product } from "../../../lib/types";
 import Link from 'next/link';
 
 export default function InventarioPage() {
-  const [joyas, setJoyas] = useState<Product[]>([]); // El useState<Product[]>([]) le dice a react que va a guardar especificamente un arreglo del tipo Product
+  const [joyas, setJoyas] = useState<Product[]>([]);
   const [cargando, setCargando] = useState(true);
 
   // 1. Traemos las joyas al cargar la página
@@ -17,7 +17,6 @@ export default function InventarioPage() {
 
   const obtenerJoyas = async () => {
     setCargando(true);
-    // Pedimos las joyas y las ordenamos por nombre alfabéticamente
     const { data, error } = await supabase
       .from("joyas")
       .select("*")
@@ -29,91 +28,113 @@ export default function InventarioPage() {
 
   // 2. Función para borrar una joya
   const eliminarJoya = async (id: string) => {
-    // Alerta de confirmación nativa del navegador
-    const confirmar = window.confirm("¿Estás súper seguro de que deseas eliminar esta pieza? Esta acción no se puede deshacer.");
+    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar esta pieza? Esta acción no se puede deshacer.");
     if (!confirmar) return;
 
-    // Le decimos a Supabase que la borre
     const { error } = await supabase.from("joyas").delete().eq("id", id);
     
     if (error) {
       alert("Hubo un error al eliminar la joya.");
       console.error(error);
     } else {
-      // Truco pro: Filtramos la lista local para quitar la joya borrada 
-      // y así no tenemos que recargar toda la página de nuevo
       setJoyas(joyas.filter((joya) => joya.id !== id));
     }
   };
 
   if (cargando) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      <div className="flex justify-center items-center h-64 text-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-white border-solid"></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Inventario Actual</h1>
+    <div className="text-white">
+      {/* Encabezado del Dashboard */}
+      <div className="mb-10">
+        <h1 className="text-3xl font-serif text-white tracking-wide mb-2">Inventario Actual</h1>
+        <div className="h-[1px] w-12 bg-[#333] mb-4"></div>
+        <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">
+          Gestión de catálogo y existencias
+        </p>
+      </div>
       
       {/* Contenedor de la tabla */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-[#111111] border border-[#1a1a1a] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             
             {/* Encabezados */}
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
-                <th className="p-4 font-semibold">Imagen</th>
-                <th className="p-4 font-semibold">Nombre</th>
-                <th className="p-4 font-semibold">Categoría</th>
-                <th className="p-4 font-semibold">Precio (MXN)</th>
-                <th className="p-4 font-semibold text-center">Acciones</th>
+              <tr className="bg-[#050505] border-b border-[#1a1a1a] text-gray-500 text-[10px] uppercase tracking-[0.2em]">
+                <th className="p-5 font-medium whitespace-nowrap">Pieza</th>
+                <th className="p-5 font-medium whitespace-nowrap">Nombre</th>
+                <th className="p-5 font-medium whitespace-nowrap">Categoría</th>
+                <th className="p-5 font-medium whitespace-nowrap">Inversión (MXN)</th>
+                <th className="p-5 font-medium text-center whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             
             {/* Cuerpo de la tabla */}
-            <tbody className="divide-y divide-gray-100 table-row-group">
+            <tbody className="divide-y divide-[#1a1a1a]">
               {joyas.map((joya) => (
-                <tr key={joya.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4">
-                    <img src={joya.image_url} alt={joya.name} className="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                <tr key={joya.id} className="hover:bg-[#1a1a1a]/50 transition-colors group">
+                  <td className="p-5">
+                    {/* Hacemos la imagen con la misma proporción 4/5 que en la tienda */}
+                    <div className="w-12 h-16 bg-[#050505] border border-[#333] overflow-hidden">
+                      <img 
+                        src={joya.image_url || '/placeholder.jpg'} 
+                        alt={joya.name} 
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                      />
+                    </div>
                   </td>
-                  <td className="p-4 font-medium text-gray-900">{joya.name}</td>
-                  <td className="p-4 text-sm text-gray-500">
-                    <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md">{joya.category}</span>
+                  <td className="p-5 font-serif text-gray-200 text-lg">
+                    {joya.name}
                   </td>
-                  <td className="p-4 text-gray-900 font-semibold">${joya.price.toLocaleString('en-US')}</td>
-                  <td className="p-4 text-center flex justify-center gap-2">
-                    {/* NUEVO BOTÓN DE EDITAR */}
-                    <Link href={`/admin/dashboard/editar/${joya.id}`}>
-                      <button className="text-blue-500 hover:text-white hover:bg-blue-500 px-3 py-1 rounded-md font-medium text-sm transition-colors border border-blue-500 hover:border-transparent">
-                        Editar
+                  <td className="p-5">
+                    <span className="border border-[#333] text-gray-400 text-[10px] uppercase tracking-widest px-3 py-1">
+                      {joya.category}
+                    </span>
+                  </td>
+                  <td className="p-5 font-light text-gray-300">
+                    ${joya.price.toLocaleString('en-US')}
+                  </td>
+                  <td className="p-5 text-center">
+                    <div className="flex justify-center gap-3">
+                      {/* BOTÓN EDITAR (Minimalista) */}
+                      <Link href={`/admin/dashboard/editar/${joya.id}`}>
+                        <button className="text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white border border-transparent hover:border-white px-4 py-2 transition-all duration-300">
+                          Editar
+                        </button>
+                      </Link>
+                      
+                      {/* BOTÓN ELIMINAR (Sutil pero claro) */}
+                      <button 
+                        onClick={() => eliminarJoya(joya.id)}
+                        className="text-[10px] uppercase tracking-[0.2em] text-red-900 hover:text-red-500 border border-transparent hover:border-red-900/50 px-4 py-2 transition-all duration-300"
+                      >
+                        Remover
                       </button>
-                    </Link>
-                    
-                    <button 
-                      onClick={() => eliminarJoya(joya.id)}
-                      className="text-red-500 hover:text-white hover:bg-red-500 px-3 py-1 rounded-md font-medium text-sm transition-colors border border-red-500 hover:border-transparent"
-                    >
-                      Eliminar
-                    </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-
           </table>
 
           {/* Mensaje si no hay nada en la BD */}
           {joyas.length === 0 && (
-            <div className="p-10 text-center text-gray-500">
-              No hay joyas en el inventario. ¡Ve a la pestaña de "Agregar Joya" para empezar!
+            <div className="p-16 text-center border-t border-[#1a1a1a]">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-10 h-10 mx-auto text-gray-700 mb-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+              </svg>
+              <p className="text-sm text-gray-500 font-light">
+                No hay piezas en el inventario.
+              </p>
             </div>
           )}
-
         </div>
       </div>
     </div>
