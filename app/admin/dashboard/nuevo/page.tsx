@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { supabase } from "../../../../lib/supabase"; 
 import { useRouter } from "next/navigation";
+import { comprimirImagen } from "../../../../lib/utils";
 
 export default function NuevoProducto() {
   const router = useRouter();
@@ -18,66 +19,7 @@ export default function NuevoProducto() {
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
   const [guardando, setGuardando] = useState(false);
 
-  // ==========================================
-  // NUEVA FUNCIÓN MÁGICA: Compresión a WebP
-  // ==========================================
-  const comprimirImagen = (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          // Tamaño máximo de 1200px para mantener calidad HD sin pesar megabytes
-          const MAX_WIDTH = 1200; 
-          const MAX_HEIGHT = 1200;
-          let width = img.width;
-          let height = img.height;
-
-          // Calculamos la proporción para no deformar la imagen
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          // Convertimos a formato WebP con 80% de calidad (0.8)
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                // Le quitamos la extensión original (.jpg, .png) y le ponemos .webp
-                const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                const compressedFile = new File([blob], newFileName, {
-                  type: "image/webp",
-                  lastModified: Date.now(),
-                });
-                resolve(compressedFile);
-              } else {
-                reject(new Error("Error al crear el blob de la imagen"));
-              }
-            },
-            "image/webp",
-            0.8
-          );
-        };
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
+  comprimirImagen
 
   const agregarJoya = async (e: React.FormEvent) => {
     e.preventDefault();
