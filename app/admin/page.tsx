@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -13,61 +14,79 @@ export default function AdminLogin() {
   const router = useRouter();
 
   const iniciarSesion = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita que la página recargue al enviar el formulario
+    e.preventDefault();
     setCargando(true);
     setError("");
 
-    // Intentamos iniciar sesión con Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
     if (error) {
-      setError("Correo o contraseña incorrectos. Intenta de nuevo.");
+      setError("Credenciales inválidas. Acceso denegado.");
       setCargando(false);
     } else {
-      // Si todo sale bien, lo mandamos al panel de control (que crearemos después)
       router.push("/admin/dashboard");
     }
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">Acceso Privado</h1>
-          <p className="text-sm text-gray-500 mt-2">Panel de administración de inventario</p>
+    <main className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4 relative overflow-hidden">
+      
+      {/* MARCA DE AGUA DE FONDO (Opcional, pero da mucha elegancia) */}
+      <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none select-none opacity-[0.02]">
+        <img 
+          src="/LogoSinFondo.png" 
+          alt="DAFMI Watermark" 
+          className="w-[80vw] max-w-2xl object-contain grayscale"
+        />
+      </div>
+
+      {/* CONTENEDOR PRINCIPAL */}
+      <div className="max-w-md w-full bg-[#111111]/90 backdrop-blur-md p-10 md:p-12 border border-[#1a1a1a] relative z-10">
+        
+        <div className="text-center mb-10">
+          <Link href="/" className="inline-block mb-8 relative w-[100px] h-[30px] hover:opacity-80 transition-opacity">
+             <img src="/LogoSinFondo.png" alt="DAFMI" className="w-full h-full object-contain" />
+          </Link>
+          <h1 className="text-3xl font-serif text-white mb-4 tracking-wide">Acceso Privado</h1>
+          <div className="h-[1px] w-12 bg-[#333] mx-auto mb-5"></div>
+          <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em]">Panel de Administración</p>
         </div>
 
-        {/* Mostramos el error en rojo si se equivoca de contraseña */}
+        {/* ALERTA DE ERROR ESTILIZADA */}
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 text-center">
+          <div className="bg-red-950/20 border border-red-900/30 text-red-400 p-4 text-[11px] tracking-wider mb-8 text-center uppercase">
             {error}
           </div>
         )}
 
-        <form onSubmit={iniciarSesion} className="space-y-6">
+        <form onSubmit={iniciarSesion} className="space-y-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 ">Correo Electrónico</label>
+            <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-3">
+              Correo Electrónico
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-blue-700 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
-              placeholder="admin@joyeria.com"
+              className="w-full px-4 py-3 bg-[#050505] border border-[#333] text-white placeholder-[#444] focus:border-white outline-none transition-all font-light text-sm"
+              placeholder="admin@dafmi.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-3">
+              Contraseña
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-blue-700 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all"
+              className="w-full px-4 py-3 bg-[#050505] border border-[#333] text-white placeholder-[#444] focus:border-white outline-none transition-all font-light text-sm"
               placeholder="••••••••"
             />
           </div>
@@ -75,11 +94,18 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={cargando}
-            className="w-full bg-black text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+            className="w-full bg-white text-black py-4 mt-2 text-[11px] font-medium uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {cargando ? "Verificando..." : "Entrar al Panel"}
+            {cargando ? "Verificando..." : "Ingresar"}
           </button>
         </form>
+
+        <div className="mt-10 text-center border-t border-[#1a1a1a] pt-8">
+          <Link href="/" className="text-[10px] text-gray-600 hover:text-white uppercase tracking-[0.2em] transition-colors group inline-flex items-center">
+            <span className="mr-2 transform group-hover:-translate-x-1 transition-transform">&larr;</span> 
+            Volver a la tienda
+          </Link>
+        </div>
       </div>
     </main>
   );
