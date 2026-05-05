@@ -1,8 +1,19 @@
 // components/Footer.tsx
+"use client"; // <-- MUY IMPORTANTE: Lo convertimos en Client Component para leer la URL
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // EL TRUCO: Si la ruta empieza con "/admin", retornamos "null" (no dibujamos nada)
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
+  // Si no estamos en admin, dibujamos el footer Premium normalmente
   return (
     <footer className="bg-[#0a0a0a] border-t border-[#1a1a1a] pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
@@ -101,12 +112,12 @@ export default function Footer() {
       {/* Barra de Copyright inferior */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-20 pt-8 border-t border-[#1a1a1a] flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs text-gray-600 font-light tracking-wide">
-          {new Date().getFullYear()} DAFMI Joyería. Te deseamos un excelente día.
+          &copy; {new Date().getFullYear()} DAFMI Joyería. Todos los derechos reservados.
         </p>
-        {/* <div className="flex gap-6 text-xs text-gray-600 font-light uppercase tracking-[0.1em]">
+        <div className="flex gap-6 text-xs text-gray-600 font-light uppercase tracking-[0.1em]">
           <Link href="#" className="hover:text-gray-300 transition-colors">Términos</Link>
           <Link href="#" className="hover:text-gray-300 transition-colors">Privacidad</Link>
-        </div> */}
+        </div>
       </div>
     </footer>
   );

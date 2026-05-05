@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar"; // <-- Importamos tu nuevo Navbar
+import Navbar from "@/components/Navbar"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Título y descripción premium para el SEO y al compartir enlaces
 export const metadata: Metadata = {
-  title: "Catálogo de Joyería", // Le puse un título más pro de paso
-  description: "Catálogo exclusivo de joyería",
+  title: "DAFMI | Alta Joyería", 
+  description: "Catálogo exclusivo de joyería fina y diseño de autor.",
 };
 
 export default function RootLayout({
@@ -27,15 +28,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased bg-white text-gray-900 flex flex-col min-h-screen">
+      {/* CAMBIO CLAVE: Fondo base oscuro para toda la app (bg-[#0a0a0a] text-white) */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a] text-white flex flex-col min-h-screen`}>
         
-        {/* Aquí inyectamos el componente Navbar que tiene toda la lógica del cliente */}
+        {/* Navbar con lógica del cliente */}
         <Navbar />
 
         <main className="flex-grow">
           {children}
         </main>
 
+        {/* Footer con lógica del cliente */}
         <Footer />
         
       </body>

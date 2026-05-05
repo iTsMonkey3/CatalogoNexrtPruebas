@@ -18,6 +18,67 @@ export default function NuevoProducto() {
   const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
   const [guardando, setGuardando] = useState(false);
 
+  // ==========================================
+  // NUEVA FUNCIÓN MÁGICA: Compresión a WebP
+  // ==========================================
+  const comprimirImagen = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          // Tamaño máximo de 1200px para mantener calidad HD sin pesar megabytes
+          const MAX_WIDTH = 1200; 
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          // Calculamos la proporción para no deformar la imagen
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convertimos a formato WebP con 80% de calidad (0.8)
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                // Le quitamos la extensión original (.jpg, .png) y le ponemos .webp
+                const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                const compressedFile = new File([blob], newFileName, {
+                  type: "image/webp",
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                reject(new Error("Error al crear el blob de la imagen"));
+              }
+            },
+            "image/webp",
+            0.8
+          );
+        };
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const agregarJoya = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -29,8 +90,8 @@ export default function NuevoProducto() {
     setGuardando(true);
     setMensaje({ texto: "Subiendo imagen...", tipo: "info" });
 
-    const fileExt = imagen.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    // La imagen ya viene como .webp gracias a nuestra función
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.webp`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('joyas-public')
@@ -76,7 +137,6 @@ export default function NuevoProducto() {
 
   return (
     <div className="text-white">
-      {/* ENCABEZADO */}
       <div className="mb-10">
         <h1 className="text-3xl font-serif text-white tracking-wide mb-2">Agregar Nueva Pieza</h1>
         <div className="h-[1px] w-12 bg-[#333] mb-4"></div>
@@ -87,7 +147,6 @@ export default function NuevoProducto() {
 
       <div className="bg-[#111111] p-8 md:p-12 border border-[#1a1a1a]">
         
-        {/* MENSAJES DE ESTADO */}
         {mensaje.texto && (
           <div className={`p-4 mb-8 text-[11px] uppercase tracking-wider text-center border ${
             mensaje.tipo === "exito" ? "bg-green-950/20 text-green-400 border-green-900/30" : 
@@ -151,42 +210,42 @@ export default function NuevoProducto() {
               />
             </div>
 
-            {/* INPUT DE ARCHIVO REDISEÑADO */}
             <div className="md:col-span-2 pt-4 border-t border-[#1a1a1a]">
               <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-4">Fotografía Principal</label>
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 
-                {/* EL TRUCO: Input oculto + Label estilizado */}
                 <div>
                   <input 
                     id="file-upload"
                     type="file" 
                     accept="image/*" 
-                    className="hidden" // Ocultamos el botón feo nativo
-                    required={!imagen} // Solo es obligatorio si aún no han subido foto
-                    onChange={(e) => {
+                    className="hidden" 
+                    required={!imagen} 
+                    onChange={async (e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         const archivoSeleccionado = e.target.files[0];
-                        const LIMITE_MB = 2;
-                        const LIMITE_BYTES = LIMITE_MB * 1024 * 1024; 
-
-                        if (archivoSeleccionado.size > LIMITE_BYTES) {
+                        
+                        try {
+                          // Avisamos que estamos trabajando
+                          setMensaje({ texto: "Optimizando fotografía...", tipo: "info" });
+                          
+                          // Ejecutamos la compresión
+                          const archivoComprimido = await comprimirImagen(archivoSeleccionado);
+                          
+                          setImagen(archivoComprimido);
+                          setMensaje({ texto: "", tipo: "" }); // Limpiamos mensaje de info
+                        } catch (error) {
                           setMensaje({ 
-                            texto: `⚠️ La imagen supera el límite de ${LIMITE_MB}MB. Por favor, comprímela.`, 
+                            texto: "Hubo un error al optimizar la imagen.", 
                             tipo: "error" 
                           });
                           e.target.value = ""; 
                           setImagen(null);
-                          return; 
                         }
-
-                        setImagen(archivoSeleccionado);
-                        setMensaje({ texto: "", tipo: "" }); 
                       }
                     }} 
                   />
-                  {/* Este label es el nuevo "Botón" */}
                   <label 
                     htmlFor="file-upload"
                     className="cursor-pointer inline-flex items-center justify-center border border-[#333] bg-[#050505] text-gray-400 px-8 py-4 text-[10px] font-medium uppercase tracking-[0.2em] hover:border-white hover:text-white transition-all duration-300 group"
@@ -199,7 +258,6 @@ export default function NuevoProducto() {
                   </label>
                 </div>
                 
-                {/* PREVISUALIZACIÓN */}
                 {imagen && (
                   <div className="relative w-24 aspect-[4/5] bg-[#050505] border border-[#333] overflow-hidden shrink-0 mt-4 sm:mt-0">
                     <img 
@@ -213,7 +271,6 @@ export default function NuevoProducto() {
             </div>
           </div>
 
-          {/* BOTÓN SUBMIT REDISEÑADO */}
           <div className="pt-8 mt-4 border-t border-[#1a1a1a]">
             <button 
               type="submit" 
