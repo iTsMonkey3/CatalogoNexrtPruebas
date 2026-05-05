@@ -24,7 +24,7 @@ export default function Catalogo() {
 
   useEffect(() => {
     async function obtenerJoyas() {
-      const { data, error } = await supabase.from('joyas').select('*').order('name');
+      const { data, error } = await supabase.from('joyas').select('*').eq('activo', true).order('name');
       if (error) {
         console.error("Error al traer datos:", error);
       } else if (data) {

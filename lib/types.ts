@@ -5,5 +5,6 @@ export interface Product {
   description: string;
   price: number;
   category: string;
-  image_url: string; // <-- ¡Actualizado al formato de la base de datos!
+  image_url: string;
+  activo?: boolean // <-- ¡Actualizado al formato de la base de datos!
 }
